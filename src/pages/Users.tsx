@@ -1,0 +1,269 @@
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Search, Plus, MoreHorizontal, Edit, Trash, Key, User } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const users = [
+  {
+    id: 1,
+    username: "admin",
+    email: "admin@empresa.com",
+    status: "active",
+    lastLogin: "2024-01-15 14:30",
+    createdAt: "2023-06-01",
+    permissions: "admin",
+    homeDir: "/home/admin",
+    quotaUsed: "2.1 GB",
+    quotaLimit: "10 GB"
+  },
+  {
+    id: 2,
+    username: "user001",
+    email: "user001@empresa.com",
+    status: "active",
+    lastLogin: "2024-01-15 12:15",
+    createdAt: "2023-08-15",
+    permissions: "read-write",
+    homeDir: "/home/user001",
+    quotaUsed: "850 MB",
+    quotaLimit: "5 GB"
+  },
+  {
+    id: 3,
+    username: "backup",
+    email: "backup@empresa.com",
+    status: "inactive",
+    lastLogin: "2024-01-10 09:20",
+    createdAt: "2023-09-20",
+    permissions: "write-only",
+    homeDir: "/home/backup",
+    quotaUsed: "12.5 GB",
+    quotaLimit: "50 GB"
+  },
+  {
+    id: 4,
+    username: "test_user",
+    email: "test@empresa.com",
+    status: "suspended",
+    lastLogin: "2024-01-05 16:45",
+    createdAt: "2024-01-01",
+    permissions: "read-only",
+    homeDir: "/home/test_user",
+    quotaUsed: "150 MB",
+    quotaLimit: "1 GB"
+  }
+];
+
+export default function Users() {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredUsers = users.filter(user =>
+    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const getStatusBadge = (status: string) => {
+    const statusColors = {
+      active: "bg-accent",
+      inactive: "bg-muted",
+      suspended: "bg-destructive"
+    };
+    
+    return (
+      <Badge className={statusColors[status as keyof typeof statusColors] || "bg-muted"}>
+        {status}
+      </Badge>
+    );
+  };
+
+  const getPermissionBadge = (permission: string) => {
+    const permissionColors = {
+      admin: "bg-primary",
+      "read-write": "bg-accent",
+      "read-only": "bg-secondary",
+      "write-only": "bg-muted"
+    };
+    
+    return (
+      <Badge variant="outline" className={permissionColors[permission as keyof typeof permissionColors] || ""}>
+        {permission}
+      </Badge>
+    );
+  };
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Usuários FTP</h1>
+          <p className="text-muted-foreground mt-1">Gerencie contas de usuários do servidor FTP</p>
+        </div>
+        <Button asChild className="bg-gradient-to-r from-primary to-primary-glow">
+          <Link to="/users/new">
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Usuário
+          </Link>
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <User className="w-4 h-4 text-accent" />
+              <div>
+                <p className="text-2xl font-bold">{users.length}</p>
+                <p className="text-xs text-muted-foreground">Total</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-accent rounded-full"></div>
+              <div>
+                <p className="text-2xl font-bold">{users.filter(u => u.status === 'active').length}</p>
+                <p className="text-xs text-muted-foreground">Ativos</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-muted rounded-full"></div>
+              <div>
+                <p className="text-2xl font-bold">{users.filter(u => u.status === 'inactive').length}</p>
+                <p className="text-xs text-muted-foreground">Inativos</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-destructive rounded-full"></div>
+              <div>
+                <p className="text-2xl font-bold">{users.filter(u => u.status === 'suspended').length}</p>
+                <p className="text-xs text-muted-foreground">Suspensos</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Search and Filters */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista de Usuários</CardTitle>
+          <CardDescription>
+            Visualize e gerencie todos os usuários FTP
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar usuários..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8"
+              />
+            </div>
+          </div>
+
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Usuário</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Permissões</TableHead>
+                  <TableHead>Último Login</TableHead>
+                  <TableHead>Quota</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{user.username}</p>
+                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(user.status)}
+                    </TableCell>
+                    <TableCell>
+                      {getPermissionBadge(user.permissions)}
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {user.lastLogin}
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <p>{user.quotaUsed}</p>
+                        <p className="text-muted-foreground">de {user.quotaLimit}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Abrir menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                          <DropdownMenuItem>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Key className="mr-2 h-4 w-4" />
+                            Alterar Senha
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-destructive">
+                            <Trash className="mr-2 h-4 w-4" />
+                            Excluir
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
