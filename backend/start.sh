@@ -92,8 +92,7 @@ main() {
     
     # Verificar portas
     if ! check_ports; then
-        echo "❌ Problema com portas"
-        exit 1
+        echo "❌ Problema com portas, mas continuando para subir o backend..."
     fi
     
     echo ""
