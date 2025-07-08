@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { apiService } from "@/services/api";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function NewUser() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -29,11 +32,10 @@ export default function NewUser() {
     allowDelete: false,
     description: ""
   });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validações básicas
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Erro",
@@ -42,7 +44,6 @@ export default function NewUser() {
       });
       return;
     }
-
     if (formData.username.length < 3) {
       toast({
         title: "Erro",
@@ -51,14 +52,28 @@ export default function NewUser() {
       });
       return;
     }
-
-    // Simular criação do usuário
-    toast({
-      title: "Usuário criado com sucesso!",
-      description: `O usuário ${formData.username} foi criado no sistema.`,
-    });
-
-    console.log("Dados do usuário:", formData);
+    setLoading(true);
+    try {
+      await apiService.createUser({
+        username: formData.username,
+        password: formData.password,
+        home_dir: formData.homeDirectory || undefined,
+        quota_mb: formData.enableQuota ? parseInt(formData.quotaLimit) * (formData.quotaUnit === "GB" ? 1024 : 1) : undefined,
+      });
+      toast({
+        title: "Usuário criado com sucesso!",
+        description: `O usuário ${formData.username} foi criado no sistema.`,
+      });
+      navigate("/users");
+    } catch (err: any) {
+      toast({
+        title: "Erro ao criar usuário",
+        description: err.message || "Erro desconhecido.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateFormData = (field: string, value: any) => {
@@ -325,8 +340,8 @@ export default function NewUser() {
           <Button variant="outline" asChild>
             <Link to="/users">Cancelar</Link>
           </Button>
-          <Button type="submit" className="bg-gradient-to-r from-primary to-primary-glow">
-            Criar Usuário
+          <Button type="submit" className="bg-gradient-to-r from-primary to-primary-glow" disabled={loading}>
+            {loading ? "Criando Usuário..." : "Criar Usuário"}
           </Button>
         </div>
       </form>

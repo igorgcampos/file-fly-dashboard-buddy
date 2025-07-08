@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,60 +21,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Search, Plus, MoreHorizontal, Edit, Trash, Key, User } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const users = [
-  {
-    id: 1,
-    username: "admin",
-    email: "admin@empresa.com",
-    status: "active",
-    lastLogin: "2024-01-15 14:30",
-    createdAt: "2023-06-01",
-    permissions: "admin",
-    homeDir: "/home/admin",
-    quotaUsed: "2.1 GB",
-    quotaLimit: "10 GB"
-  },
-  {
-    id: 2,
-    username: "user001",
-    email: "user001@empresa.com",
-    status: "active",
-    lastLogin: "2024-01-15 12:15",
-    createdAt: "2023-08-15",
-    permissions: "read-write",
-    homeDir: "/home/user001",
-    quotaUsed: "850 MB",
-    quotaLimit: "5 GB"
-  },
-  {
-    id: 3,
-    username: "backup",
-    email: "backup@empresa.com",
-    status: "inactive",
-    lastLogin: "2024-01-10 09:20",
-    createdAt: "2023-09-20",
-    permissions: "write-only",
-    homeDir: "/home/backup",
-    quotaUsed: "12.5 GB",
-    quotaLimit: "50 GB"
-  },
-  {
-    id: 4,
-    username: "test_user",
-    email: "test@empresa.com",
-    status: "suspended",
-    lastLogin: "2024-01-05 16:45",
-    createdAt: "2024-01-01",
-    permissions: "read-only",
-    homeDir: "/home/test_user",
-    quotaUsed: "150 MB",
-    quotaLimit: "1 GB"
-  }
-];
+import { apiService, User as ApiUser } from "@/services/api";
 
 export default function Users() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [users, setUsers] = useState<ApiUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    apiService.getUsers()
+      .then(setUsers)
+      .catch((err) => setError(err.message || "Erro ao carregar usuários"))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filteredUsers = users.filter(user =>
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
