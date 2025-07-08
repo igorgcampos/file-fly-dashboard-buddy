@@ -18,6 +18,8 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
+      - "21:21"
+      - "40000-40100:40000-40100"
     volumes:
       - ftp_data:/home/ftpusers
       - vsftpd_config:/etc/vsftpd
@@ -28,6 +30,7 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+    privileged: true
 
   # Nginx reverse proxy
   nginx:

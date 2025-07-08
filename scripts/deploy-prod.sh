@@ -3,7 +3,7 @@
 # Script de Deploy para Produção
 set -e
 
-echo "🚀 Iniciando deploy da aplicação FTP Dashboard..."
+echo "🚀 Iniciando deploy de PRODUÇÃO da aplicação FTP Dashboard..."
 
 # Função para detectar o sistema operacional
 detect_os() {
@@ -106,8 +106,8 @@ if ! command -v docker-compose &> /dev/null; then
 fi
 
 # Verificar se estamos no diretório correto
-if [ ! -f "docker-compose.yml" ]; then
-    echo "❌ Execute este script no diretório raiz do projeto (onde está o docker-compose.yml)"
+if [ ! -f "docker-compose.prod.yml" ]; then
+    echo "❌ Execute este script no diretório raiz do projeto (onde está o docker-compose.prod.yml)"
     exit 1
 fi
 
@@ -118,43 +118,67 @@ if ! docker info &> /dev/null; then
     sleep 3
 fi
 
+# Configuração de produção
+echo "⚙️ Configurando para produção..."
+
+# Criar diretório de logs se não existir
+mkdir -p logs
+
+# Verificar se existe arquivo .env para produção
+if [ ! -f ".env" ]; then
+    echo "📝 Criando arquivo .env para produção..."
+    cat > .env << EOF
+# Configurações de Produção
+ENVIRONMENT=production
+NODE_ENV=production
+EOF
+    echo "✅ Arquivo .env criado"
+fi
+
 # Parar containers existentes
 echo "🛑 Parando containers existentes..."
-docker-compose down 2>/dev/null || true
+docker-compose -f docker-compose.prod.yml down 2>/dev/null || true
 
 # Remover imagens antigas
 echo "🧹 Removendo imagens antigas..."
 docker system prune -f
 
 # Construir novas imagens
-echo "🔨 Construindo imagens..."
-docker-compose build --no-cache
+echo "🔨 Construindo imagens para produção..."
+docker-compose -f docker-compose.prod.yml build --no-cache
 
-# Iniciar serviços
-echo "▶️ Iniciando serviços..."
-docker-compose up -d
+# Iniciar serviços de produção
+echo "▶️ Iniciando serviços de produção..."
+docker-compose -f docker-compose.prod.yml up -d
 
 # Aguardar um pouco para os serviços iniciarem
 echo "⏳ Aguardando serviços iniciarem..."
-sleep 10
+sleep 15
 
 # Verificar status
 echo "📊 Verificando status dos serviços..."
-docker-compose ps
+docker-compose -f docker-compose.prod.yml ps
 
 # Verificar se os serviços estão rodando
-if docker-compose ps | grep -q "Up"; then
-    echo "✅ Deploy concluído com sucesso!"
-    echo "🌐 Frontend disponível em: http://localhost:3000"
+if docker-compose -f docker-compose.prod.yml ps | grep -q "Up"; then
+    echo "✅ Deploy de PRODUÇÃO concluído com sucesso!"
+    echo "🌐 Frontend disponível em: http://localhost (porta 80)"
     echo "🔧 Backend API disponível em: http://localhost:8000"
     echo "📚 Documentação da API: http://localhost:8000/docs"
     echo ""
+    echo "🔒 Configurações de produção ativadas:"
+    echo "   - SSL/HTTPS habilitado"
+    echo "   - Rate limiting configurado"
+    echo "   - Headers de segurança ativos"
+    echo "   - Logs centralizados"
+    echo ""
     echo "📋 Comandos úteis:"
-    echo "   Ver logs: docker-compose logs -f"
-    echo "   Parar: docker-compose down"
-    echo "   Reiniciar: docker-compose restart"
+    echo "   Ver logs: docker-compose -f docker-compose.prod.yml logs -f"
+    echo "   Parar: docker-compose -f docker-compose.prod.yml down"
+    echo "   Reiniciar: docker-compose -f docker-compose.prod.yml restart"
+    echo "   Backup: ./scripts/backup.sh"
 else
     echo "❌ Erro: Alguns serviços não iniciaram corretamente."
-    echo "📋 Verifique os logs: docker-compose logs"
+    echo "📋 Verifique os logs: docker-compose -f docker-compose.prod.yml logs"
     exit 1
 fi 

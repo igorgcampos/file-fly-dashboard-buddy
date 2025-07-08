@@ -16,6 +16,8 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
+      - "21:21"
+      - "40000-40100:40000-40100"
     volumes:
       - ./backend:/app
       - ftp_data:/home/ftpusers
@@ -24,6 +26,7 @@ services:
       - PYTHONPATH=/app
     networks:
       - app-network
+    privileged: true
 
 volumes:
   ftp_data:

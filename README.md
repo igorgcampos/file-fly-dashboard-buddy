@@ -24,31 +24,48 @@ Uma aplicação web moderna para gerenciar servidores FTP com interface intuitiv
 
 ## 🛠️ Instalação e Deploy
 
-### Opção 1: Deploy com Docker (Recomendado)
+### 🚀 Instalação Completa (Máquina Nova)
 
-1. **Clone o repositório**
+Para uma máquina **completamente nova**, execute:
+
 ```bash
+# 1. Clone o repositório
 git clone <seu-repositorio>
 cd file-fly-dashboard-buddy
+
+# 2. Instalação completa (TUDO automaticamente)
+chmod +x scripts/install-all.sh
+./scripts/install-all.sh
+
+# 3. Deploy da aplicação
+./scripts/deploy.sh
+
+# 4. Testar se tudo está funcionando
+./scripts/test.sh
 ```
 
-2. **Deploy para Desenvolvimento**
+**O que o script faz automaticamente:**
+- ✅ Instala Docker e Docker Compose
+- ✅ Instala e configura vsftpd
+- ✅ Cria usuários FTP virtuais
+- ✅ Configura firewall
+- ✅ Gera certificados SSL
+- ✅ Deploy da aplicação completa
+
+### 📦 Deploy Simples (Docker já instalado)
+
+Se você já tem Docker instalado:
+
 ```bash
-# Iniciar todos os serviços
+# 1. Clone o repositório
+git clone <seu-repositorio>
+cd file-fly-dashboard-buddy
+
+# 2. Deploy para Desenvolvimento
 docker-compose up -d
 
-# Verificar logs
-docker-compose logs -f
-```
-
-3. **Deploy para Produção**
-```bash
-# Usar configuração de produção
+# 3. Deploy para Produção
 docker-compose -f docker-compose.prod.yml up -d
-
-# Ou usar o script de deploy
-chmod +x scripts/deploy.sh
-./scripts/deploy.sh
 ```
 
 ### Opção 2: Desenvolvimento Local
@@ -71,7 +88,26 @@ npm run dev
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8000
 - **Documentação API**: http://localhost:8000/docs
-- **FTP Server**: Porta 21 (configurado via vsftpd)
+- **FTP Server**: Porta 21 (configurado automaticamente)
+
+## 🔧 O que é instalado automaticamente
+
+### Sistema
+- **Docker**: Containerização da aplicação
+- **Docker Compose**: Orquestração de containers
+- **vsftpd**: Servidor FTP com usuários virtuais
+- **Firewall**: Configuração de portas (21, 3000, 8000, 40000-40100)
+
+### Aplicação
+- **Frontend**: React + TypeScript + Tailwind CSS
+- **Backend**: FastAPI + Python
+- **Nginx**: Proxy reverso (produção)
+- **SSL**: Certificados auto-assinados
+
+### Usuários FTP
+- **admin/admin123**: Usuário padrão criado automaticamente
+- **Sistema de usuários virtuais**: Gerenciado via dashboard
+- **Diretório base**: `/home/ftpusers`
 
 ## 🔧 Configuração
 
