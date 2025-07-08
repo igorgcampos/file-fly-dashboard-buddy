@@ -1,73 +1,236 @@
-# Welcome to your Lovable project
+# FTP Dashboard - Gerenciador de Servidor FTP
 
-## Project info
+Uma aplicação web moderna para gerenciar servidores FTP com interface intuitiva e monitoramento em tempo real.
 
-**URL**: https://lovable.dev/projects/620372f2-66f2-4e08-af6e-f64e27c30dd3
+## 🚀 Tecnologias
 
-## How can I edit this code?
+### Frontend
+- **React 18** com TypeScript
+- **Vite** para build e desenvolvimento
+- **Tailwind CSS** + **shadcn/ui** para UI
+- **React Query** para gerenciamento de estado
+- **React Router** para navegação
 
-There are several ways of editing your application.
+### Backend
+- **FastAPI** (Python) para API REST
+- **vsftpd** para servidor FTP
+- **PostgreSQL** (opcional) para produção
 
-**Use Lovable**
+## 📋 Pré-requisitos
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/620372f2-66f2-4e08-af6e-f64e27c30dd3) and start prompting.
+- Docker e Docker Compose
+- Node.js 18+ (para desenvolvimento local)
+- Python 3.11+ (para desenvolvimento local)
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🛠️ Instalação e Deploy
 
-**Use your preferred IDE**
+### Opção 1: Deploy com Docker (Recomendado)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Clone o repositório**
+```bash
+git clone <seu-repositorio>
+cd file-fly-dashboard-buddy
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **Deploy para Desenvolvimento**
+```bash
+# Iniciar todos os serviços
+docker-compose up -d
 
-Follow these steps:
+# Verificar logs
+docker-compose logs -f
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. **Deploy para Produção**
+```bash
+# Usar configuração de produção
+docker-compose -f docker-compose.prod.yml up -d
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Ou usar o script de deploy
+chmod +x scripts/deploy.sh
+./scripts/deploy.sh
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Opção 2: Desenvolvimento Local
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+1. **Backend**
+```bash
+cd backend
+pip install -r requirements.txt
+python start.py
+```
+
+2. **Frontend**
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 🌐 Acessos
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **Documentação API**: http://localhost:8000/docs
+- **FTP Server**: Porta 21 (configurado via vsftpd)
 
-**Use GitHub Codespaces**
+## 🔧 Configuração
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Variáveis de Ambiente
 
-## What technologies are used for this project?
+Crie um arquivo `.env` na raiz do projeto:
 
-This project is built with:
+```env
+# Produção
+POSTGRES_PASSWORD=sua_senha_segura
+ENVIRONMENT=production
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+# Desenvolvimento
+NODE_ENV=development
+```
 
-## How can I deploy this project?
+### Configuração SSL (Produção)
 
-Simply open [Lovable](https://lovable.dev/projects/620372f2-66f2-4e08-af6e-f64e27c30dd3) and click on Share -> Publish.
+1. **Gerar certificados SSL**
+```bash
+mkdir ssl
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout ssl/key.pem -out ssl/cert.pem
+```
 
-## Can I connect a custom domain to my Lovable project?
+2. **Configurar domínio**
+Edite `nginx.prod.conf` e substitua `server_name _;` pelo seu domínio.
 
-Yes, you can!
+## 📊 Funcionalidades
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Dashboard
+- ✅ Estatísticas do servidor FTP
+- ✅ Monitoramento de conexões ativas
+- ✅ Uso de disco em tempo real
+- ✅ Histórico de transferências
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Gerenciamento de Usuários
+- ✅ Criar usuários FTP virtuais
+- ✅ Definir quotas de disco
+- ✅ Remover usuários
+- ✅ Listar usuários ativos
+
+### Monitoramento
+- ✅ Status do servidor vsftpd
+- ✅ Logs de transferências
+- ✅ Usuários recentes
+- ✅ Métricas de performance
+
+## 🔒 Segurança
+
+- **Rate Limiting**: Proteção contra ataques DDoS
+- **CORS**: Configurado para produção
+- **SSL/TLS**: Suporte completo a HTTPS
+- **Headers de Segurança**: XSS, CSRF, etc.
+- **Autenticação**: Sistema de usuários virtuais
+
+## 📝 Logs
+
+Os logs são salvos em:
+- **Nginx**: `/var/log/nginx/`
+- **Backend**: `./logs/`
+- **Docker**: `docker-compose logs`
+
+## 🚀 Deploy em Produção
+
+### 1. **VPS/Cloud Server**
+
+```bash
+# Instalar Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+
+# Instalar Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Deploy
+git clone <seu-repositorio>
+cd file-fly-dashboard-buddy
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### 2. **Plataformas Cloud**
+
+#### **Railway**
+```bash
+railway login
+railway init
+railway up
+```
+
+#### **Render**
+```bash
+# Conectar repositório no dashboard do Render
+# Configurar build command: docker-compose -f docker-compose.prod.yml up -d
+```
+
+#### **DigitalOcean App Platform**
+```bash
+# Usar docker-compose.prod.yml
+# Configurar variáveis de ambiente no dashboard
+```
+
+### 3. **AWS/GCP/Azure**
+
+```bash
+# Usar ECS, GKE ou AKS
+# Configurar load balancer
+# Configurar SSL certificates
+```
+
+## 🔧 Manutenção
+
+### Backup
+```bash
+# Backup dos dados FTP
+docker run --rm -v ftp_data:/data -v $(pwd):/backup alpine tar czf /backup/ftp_backup.tar.gz -C /data .
+
+# Backup do PostgreSQL
+docker exec postgres pg_dump -U ftp_user ftp_dashboard > backup.sql
+```
+
+### Updates
+```bash
+# Atualizar aplicação
+git pull
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+### Monitoramento
+```bash
+# Verificar status
+docker-compose ps
+
+# Ver logs
+docker-compose logs -f backend
+
+# Verificar uso de recursos
+docker stats
+```
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch para sua feature
+3. Commit suas mudanças
+4. Push para a branch
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+## 🆘 Suporte
+
+- **Issues**: Abra uma issue no GitHub
+- **Documentação**: http://localhost:8000/docs (quando rodando)
+- **Email**: [seu-email@exemplo.com]
+
+---
+
+**Desenvolvido com ❤️ usando React, FastAPI e Docker**
