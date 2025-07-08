@@ -45,23 +45,9 @@ services:
       - app-network
     restart: unless-stopped
 
-  # PostgreSQL para produção
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: ftp_dashboard
-      POSTGRES_USER: ftp_user
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your_secure_password}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-    restart: unless-stopped
-
 volumes:
   ftp_data:
   vsftpd_config:
-  postgres_data:
 
 networks:
   app-network:

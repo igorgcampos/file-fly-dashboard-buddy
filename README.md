@@ -14,7 +14,7 @@ Uma aplicação web moderna para gerenciar servidores FTP com interface intuitiv
 ### Backend
 - **FastAPI** (Python) para API REST
 - **vsftpd** para servidor FTP
-- **PostgreSQL** (opcional) para produção
+- **Arquivos de sistema** para armazenamento de dados
 
 ## 📋 Pré-requisitos
 
@@ -81,7 +81,6 @@ Crie um arquivo `.env` na raiz do projeto:
 
 ```env
 # Produção
-POSTGRES_PASSWORD=sua_senha_segura
 ENVIRONMENT=production
 
 # Desenvolvimento
@@ -190,8 +189,8 @@ railway up
 # Backup dos dados FTP
 docker run --rm -v ftp_data:/data -v $(pwd):/backup alpine tar czf /backup/ftp_backup.tar.gz -C /data .
 
-# Backup do PostgreSQL
-docker exec postgres pg_dump -U ftp_user ftp_dashboard > backup.sql
+# Backup das configurações
+docker run --rm -v vsftpd_config:/data -v $(pwd):/backup alpine tar czf /backup/vsftpd_config_backup.tar.gz -C /data .
 ```
 
 ### Updates
