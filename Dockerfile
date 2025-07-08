@@ -3,9 +3,12 @@ FROM node:18-alpine AS build
 
 WORKDIR /app
 
+# Instala python3 e ferramentas de compilação necessárias para o node-gyp
+RUN apk add --no-cache python3 make g++
+
 # Copy package files
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --include=dev
 
 # Copy source code
 COPY . .

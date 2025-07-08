@@ -45,7 +45,7 @@ start_vsftpd() {
     pkill vsftpd 2>/dev/null || true
     
     # Iniciar vsftpd em background
-    vsftpd /etc/vsftpd/vsftpd.conf &
+    vsftpd /etc/vsftpd/vsftpd.conf
     
     # Aguardar vsftpd iniciar
     if wait_for_service vsftpd; then

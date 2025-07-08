@@ -18,12 +18,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
+# Copy startup script
+#COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 # Create FTP directories
 RUN mkdir -p /home/ftpusers /etc/vsftpd /var/run/vsftpd/empty
-
-# Copy startup script
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
 
 # Expose ports
 EXPOSE 8000 21
