@@ -1,4 +1,5 @@
-const API_BASE_URL = 'http://localhost:8000';
+//const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://44.212.11.51:8000';
 
 export interface DashboardStats {
   active_users: number;
