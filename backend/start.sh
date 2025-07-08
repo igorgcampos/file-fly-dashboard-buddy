@@ -14,7 +14,7 @@ wait_for_service() {
     echo "⏳ Aguardando $service..."
     
     while [ $attempt -le $max_attempts ]; do
-        if systemctl is-active --quiet $service; then
+        if pgrep -f $service > /dev/null; then
             echo "✅ $service está rodando"
             return 0
         fi
@@ -32,23 +32,9 @@ wait_for_service() {
 setup_vsftpd_if_needed() {
     echo "🔧 Verificando configuração do vsftpd..."
     
-    # Verificar se vsftpd está instalado
-    if ! command -v vsftpd &> /dev/null; then
-        echo "📦 vsftpd não encontrado, instalando..."
-        python setup_vsftpd.py
-    fi
-    
-    # Verificar se configuração existe
-    if [ ! -f "/etc/vsftpd/vsftpd.conf" ]; then
-        echo "⚙️ Configuração do vsftpd não encontrada, criando..."
-        python setup_vsftpd.py
-    fi
-    
-    # Verificar se usuário ftpuser existe
-    if ! id "ftpuser" &>/dev/null; then
-        echo "👤 Usuário ftpuser não encontrado, criando..."
-        python setup_vsftpd.py
-    fi
+    # Sempre executar o setup para garantir que tudo está configurado
+    echo "⚙️ Configurando vsftpd..."
+    python setup_vsftpd.py
 }
 
 # Função para iniciar vsftpd
@@ -56,10 +42,10 @@ start_vsftpd() {
     echo "🐳 Iniciando vsftpd..."
     
     # Parar vsftpd se estiver rodando
-    systemctl stop vsftpd 2>/dev/null || true
+    pkill vsftpd 2>/dev/null || true
     
-    # Iniciar vsftpd
-    systemctl start vsftpd
+    # Iniciar vsftpd em background
+    vsftpd /etc/vsftpd/vsftpd.conf &
     
     # Aguardar vsftpd iniciar
     if wait_for_service vsftpd; then
@@ -75,8 +61,11 @@ start_vsftpd() {
 check_ports() {
     echo "🔍 Verificando portas..."
     
+    # Aguardar um pouco para as portas ficarem disponíveis
+    sleep 5
+    
     # Verificar porta 21 (FTP)
-    if netstat -tlnp | grep -q ":21 "; then
+    if netstat -tlnp 2>/dev/null | grep -q ":21 " || ss -tlnp 2>/dev/null | grep -q ":21 "; then
         echo "✅ Porta 21 (FTP) está aberta"
     else
         echo "❌ Porta 21 (FTP) não está aberta"

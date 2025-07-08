@@ -266,23 +266,10 @@ def enable_and_start_vsftpd():
     logger.info("Iniciando serviço vsftpd...")
     
     try:
-        # Habilitar serviço
-        run_command("systemctl enable vsftpd")
-        
-        # Iniciar serviço
-        success, _ = run_command("systemctl start vsftpd")
-        if not success:
-            logger.error("Falha ao iniciar vsftpd")
-            return False
-        
-        # Verificar status
-        success, output = run_command("systemctl is-active vsftpd")
-        if success and "active" in output:
-            logger.info("vsftpd iniciado com sucesso")
-            return True
-        else:
-            logger.error("vsftpd não está rodando")
-            return False
+        # Em containers Docker, não usamos systemctl
+        # O vsftpd será iniciado pelo script start.sh
+        logger.info("vsftpd será iniciado pelo script de inicialização do container")
+        return True
             
     except Exception as e:
         logger.error(f"Erro iniciando vsftpd: {e}")

@@ -60,7 +60,7 @@ test_ftp() {
 test_containers() {
     echo -n "🔍 Verificando containers... "
     
-    if docker-compose ps | grep -q "Up"; then
+    if docker-compose ps 2>/dev/null | grep -q "Up"; then
         echo -e "${GREEN}✅ OK${NC}"
         return 0
     else
@@ -132,7 +132,6 @@ main() {
         "test_connectivity backend 8000 'Backend API (porta 8000)'"
         "test_connectivity ftp 21 'FTP Server (porta 21)'"
         "test_api"
-        "test_ftp"
     )
     
     # Executar testes

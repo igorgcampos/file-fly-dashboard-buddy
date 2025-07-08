@@ -18,12 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create FTP directories and setup
+# Create FTP directories
 RUN mkdir -p /home/ftpusers /etc/vsftpd /var/run/vsftpd/empty
-
-# Setup vsftpd configuration
-COPY setup_vsftpd.py .
-RUN python setup_vsftpd.py
 
 # Copy startup script
 COPY start.sh /app/start.sh

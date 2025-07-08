@@ -128,7 +128,7 @@ docker system prune -f
 
 # Construir novas imagens
 echo "🔨 Construindo imagens..."
-docker-compose build --no-cache
+./scripts/build.sh
 
 # Iniciar serviços
 echo "▶️ Iniciando serviços..."

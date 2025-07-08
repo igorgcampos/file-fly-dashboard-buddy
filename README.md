@@ -37,11 +37,20 @@ cd file-fly-dashboard-buddy
 chmod +x scripts/install-all.sh
 ./scripts/install-all.sh
 
-# 3. Deploy da aplicação
+# 3. Build e deploy da aplicação
 ./scripts/deploy.sh
 
 # 4. Testar se tudo está funcionando
 ./scripts/test.sh
+```
+
+**OU use o script de início rápido:**
+
+```bash
+# Clone e execute tudo em um comando
+git clone <seu-repositorio>
+cd file-fly-dashboard-buddy
+./scripts/quick-start.sh
 ```
 
 **O que o script faz automaticamente:**
