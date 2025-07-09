@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import subprocess
@@ -373,6 +374,18 @@ async def get_recent_users():
         return [RecentUser(**user) for user in log_data["recent_users"]]
     except Exception as e:
         logger.error(f"Error getting recent users: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/logs/vsftpd", response_class=PlainTextResponse)
+async def get_vsftpd_log():
+    """Retorna o conteúdo do log do vsftpd"""
+    try:
+        if not os.path.exists(VSFTPD_LOG):
+            return "Arquivo de log não encontrado."
+        with open(VSFTPD_LOG, "r") as f:
+            return f.read()
+    except Exception as e:
+        logger.error(f"Erro ao ler o log do vsftpd: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

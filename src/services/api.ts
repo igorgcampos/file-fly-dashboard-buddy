@@ -82,6 +82,14 @@ class ApiService {
       method: 'DELETE',
     });
   }
+
+  async getVsftpdLog(): Promise<string> {
+    const response = await fetch(`${API_BASE_URL}/api/logs/vsftpd`);
+    if (!response.ok) {
+      throw new Error('Erro ao buscar log do vsftpd');
+    }
+    return response.text();
+  }
 }
 
 export const apiService = new ApiService();

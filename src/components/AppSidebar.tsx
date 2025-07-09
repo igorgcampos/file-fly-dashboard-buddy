@@ -32,7 +32,7 @@ export function AppSidebar() {
     if (path === "/") {
       return currentPath === "/";
     }
-    return currentPath.startsWith(path);
+    return currentPath === path;
   };
 
   const getNavClasses = (path: string) => {
