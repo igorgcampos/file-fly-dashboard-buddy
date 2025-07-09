@@ -140,7 +140,7 @@ max_per_ip=10
         os.makedirs("/etc/vsftpd", exist_ok=True)
         
         # Escrever arquivo de configuração
-        with open("/etc/vsftpd/vsftpd.conf", "w") as f:
+        with open("/etc/vsftpd.conf", "w") as f:
             f.write(config_content)
         
         logger.info("Configuração do vsftpd criada com sucesso")
