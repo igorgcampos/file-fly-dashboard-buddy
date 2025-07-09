@@ -103,6 +103,10 @@ local_umask=022
 dirmessage_enable=YES
 use_localtime=YES
 xferlog_enable=YES
+xferlog_file=/var/log/vsftpd.log
+xferlog_std_format=NO
+log_ftp_protocol=YES
+debug_ssl=YES
 connect_from_port_20=YES
 chroot_local_user=YES
 allow_writeable_chroot=YES
@@ -118,11 +122,6 @@ virtual_use_local_privs=YES
 userlist_enable=YES
 userlist_file=/etc/vsftpd/virtual_users.txt
 userlist_deny=NO
-
-# Logging
-xferlog_file=/var/log/vsftpd.log
-xferlog_std_format=YES
-log_ftp_protocol=YES
 
 # Security
 pasv_enable=YES
