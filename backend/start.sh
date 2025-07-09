@@ -5,6 +5,10 @@ set -e
 
 echo "🚀 Iniciando FTP Dashboard..."
 
+# Executar setup_vsftpd.py para garantir configuração customizada
+echo "🔧 Executando setup_vsftpd.py para garantir configuração customizada..."
+python3 /app/setup_vsftpd.py
+
 # Função para aguardar serviço
 wait_for_service() {
     local service=$1
