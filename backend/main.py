@@ -258,12 +258,9 @@ async def create_user(user: VirtualUser):
                 if f"\n{user.username}\n" in f"\n{content}\n":
                     raise HTTPException(status_code=400, detail="User already exists")
         
-        # Hash password
-        hashed_password = hash_password(user.password)
-        
-        # Append to virtual users file
+        # Salvar senha em texto puro (NÃO hash!)
         with open(VIRTUAL_USERS_FILE, 'a') as f:
-            f.write(f"{user.username}\n{hashed_password}\n")
+            f.write(f"{user.username}\n{user.password}\n")
         
         # Create user directory
         user_dir = user.home_dir or f"{FTP_HOME_BASE}/{user.username}"
