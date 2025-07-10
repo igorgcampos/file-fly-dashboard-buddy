@@ -9,7 +9,7 @@ import Users from "./pages/Users";
 import NewUser from "./pages/NewUser";
 import NotFound from "./pages/NotFound";
 import Logs from "./pages/Logs";
-import Config from "./pages/Config";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +25,7 @@ const App = () => (
             <Route path="/users" element={<Users />} />
             <Route path="/users/new" element={<NewUser />} />
             <Route path="/logs" element={<Logs />} />
-            <Route path="/config" element={<Config />} />
+            <Route path="/settings" element={<Settings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
