@@ -192,6 +192,17 @@ export default function Users() {
                         <p className="text-muted-foreground">de {user.quotaLimit}</p>
                       </div>
                     </TableCell>
+                    <TableCell className="py-2 text-center w-32 min-w-[100px] text-xs text-muted-foreground">
+                      {user.created_at
+                        ? new Date(user.created_at).toLocaleString("pt-BR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                          })
+                        : "-"}
+                    </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
