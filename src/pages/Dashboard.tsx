@@ -1,271 +1,148 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Server, Activity, HardDrive, Plus, Eye, AlertCircle } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useDashboardStats, useRecentUsers } from "@/hooks/useDashboard";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { apiService } from "@/services/api";
+import { User } from "@/services/api";
+import { RefreshCw, CheckCircle, AlertTriangle, User as UserIcon, HardDrive, Activity, Shield } from "lucide-react";
 
 export default function Dashboard() {
-  const { data: dashboardStats, isLoading: statsLoading, error: statsError } = useDashboardStats();
-  const { data: recentUsers, isLoading: usersLoading, error: usersError } = useRecentUsers();
+  const [stats, setStats] = useState<any>(null);
+  const [recentUsers, setRecentUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const getStatsData = () => {
-    if (!dashboardStats) return [];
-    
-    return [
-      {
-        title: "Usuários Ativos",
-        value: dashboardStats.active_users.toString(),
-        description: "Conectados agora",
-        icon: Users,
-        trend: dashboardStats.active_users > 0 ? "Online" : "Offline",
-        color: "text-accent"
-      },
-      {
-        title: "Servidor FTP",
-        value: dashboardStats.server_status === "online" ? "Online" : "Offline",
-        description: dashboardStats.server_version,
-        icon: Server,
-        trend: dashboardStats.uptime,
-        color: dashboardStats.server_status === "online" ? "text-accent" : "text-destructive"
-      },
-      {
-        title: "Transferências",
-        value: dashboardStats.transfers_24h.toString(),
-        description: "Últimas 24h",
-        icon: Activity,
-        trend: `${dashboardStats.transfers_24h} transfers`,
-        color: "text-primary"
-      },
-      {
-        title: "Espaço Usado",
-        value: `${dashboardStats.disk_used_gb} GB`,
-        description: `de ${dashboardStats.disk_total_gb} GB`,
-        icon: HardDrive,
-        trend: `${dashboardStats.disk_usage_percent}%`,
-        color: "text-primary"
-      }
-    ];
-  };
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      const stats = await apiService.getDashboardStats();
+      const users = await apiService.getRecentUsers();
+      setStats(stats);
+      setRecentUsers(users as any);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Visão geral do servidor FTP</p>
-        </div>
-        <div className="flex gap-3">
-          <Button asChild variant="outline">
-            <Link to="/logs">
-              <Eye className="w-4 h-4 mr-2" />
-              Ver Logs
-            </Link>
-          </Button>
-          <Button asChild className="bg-gradient-to-r from-primary to-primary-glow">
-            <Link to="/users/new">
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Usuário
-            </Link>
-          </Button>
-        </div>
+      {/* Cards de Métricas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-blue-50">
+          <CardContent className="p-4 flex flex-col items-center">
+            <UserIcon className="w-6 h-6 text-blue-500 mb-2" />
+            <div className="text-2xl font-bold">{stats?.total_users ?? "-"}</div>
+            <div className="text-xs text-muted-foreground">Total de Usuários</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-green-50">
+          <CardContent className="p-4 flex flex-col items-center">
+            <UserIcon className="w-6 h-6 text-green-500 mb-2" />
+            <div className="text-2xl font-bold">{stats?.active_users ?? "-"}</div>
+            <div className="text-xs text-muted-foreground">Usuários Ativos</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-purple-50">
+          <CardContent className="p-4 flex flex-col items-center">
+            <HardDrive className="w-6 h-6 text-purple-500 mb-2" />
+            <div className="text-2xl font-bold">{stats ? `${stats.disk_used_gb} GB` : "-"}</div>
+            <div className="text-xs text-muted-foreground">Quota Total</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-orange-50">
+          <CardContent className="p-4 flex flex-col items-center">
+            <Activity className="w-6 h-6 text-orange-500 mb-2" />
+            <div className="text-2xl font-bold">{stats?.active_connections ?? "-"}</div>
+            <div className="text-xs text-muted-foreground">Conexões Ativas</div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statsLoading ? (
-          Array(4).fill(0).map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-4" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-8 w-16 mb-2" />
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-3 w-20" />
-                  <Skeleton className="h-5 w-12" />
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        ) : statsError ? (
-          <div className="col-span-full">
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Erro ao carregar estatísticas: {statsError.message}
-              </AlertDescription>
-            </Alert>
-          </div>
-        ) : (
-          getStatsData().map((stat) => (
-            <Card key={stat.title} className="hover:shadow-md transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </CardTitle>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground">
-                    {stat.description}
-                  </p>
-                  <Badge variant="secondary" className="text-xs">
-                    {stat.trend}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Users */}
+      {/* Usuários Recentes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Usuários Recentes
-            </CardTitle>
-            <CardDescription>
-              Últimas atividades dos usuários
-            </CardDescription>
+            <CardTitle>Usuários Recentes</CardTitle>
+            <Button size="sm" variant="outline" className="absolute right-6 top-6 flex items-center gap-2">
+              <RefreshCw className="w-4 h-4" /> Atualizar
+            </Button>
           </CardHeader>
           <CardContent>
-            {usersLoading ? (
-              <div className="space-y-4">
-                {Array(4).fill(0).map((_, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Skeleton className="w-8 h-8 rounded-full" />
-                      <div>
-                        <Skeleton className="h-4 w-20 mb-1" />
-                        <Skeleton className="h-3 w-16" />
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="h-3 w-16" />
-                      <Skeleton className="h-5 w-12" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : usersError ? (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Erro ao carregar usuários recentes: {usersError.message}
-                </AlertDescription>
-              </Alert>
-            ) : recentUsers && recentUsers.length > 0 ? (
-              <div className="space-y-4">
-                {recentUsers.map((user) => (
-                  <div key={user.name} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center justify-center w-8 h-8 bg-muted rounded-full">
-                        <Users className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">{user.name}</p>
-                        <p className="text-xs text-muted-foreground">{user.last_access}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-muted-foreground">
-                        {user.transfers} transfers
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-muted-foreground">
+                  <th className="text-left">Usuário</th>
+                  <th className="text-left">Diretório</th>
+                  <th>Permissões</th>
+                  <th>Quota</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentUsers.map((user, i) => (
+                  <tr key={i} className="border-b last:border-0">
+                    <td className="py-2 font-medium flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-muted text-primary font-bold">
+                        {user.username[0]?.toUpperCase()}
                       </span>
-                      <Badge 
-                        variant={user.status === "online" ? "default" : "secondary"}
-                        className={user.status === "online" ? "bg-accent" : ""}
-                      >
-                        {user.status}
-                      </Badge>
-                    </div>
-                  </div>
+                      {user.username}
+                    </td>
+                    <td className="py-2">{user.home_dir}</td>
+                    <td className="py-2">
+                      <Badge variant="outline">Completo</Badge>
+                    </td>
+                    <td className="py-2">{user.quota_mb} MB</td>
+                    <td className="py-2">
+                      <Badge className={user.status === "Ativo" ? "bg-green-100 text-green-700" : "bg-muted"}>{user.status}</Badge>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            ) : (
-              <div className="text-center text-muted-foreground py-4">
-                Nenhuma atividade recente encontrada
-              </div>
-            )}
-            <div className="mt-4 pt-4 border-t">
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/users">
-                  Ver Todos os Usuários
-                </Link>
-              </Button>
-            </div>
+              </tbody>
+            </table>
           </CardContent>
         </Card>
 
-        {/* Server Status */}
+        {/* Status do Sistema */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Server className="w-5 h-5" />
-              Status do Servidor
-            </CardTitle>
-            <CardDescription>
-              Informações do sistema
-            </CardDescription>
+            <CardTitle>Status do Sistema</CardTitle>
           </CardHeader>
           <CardContent>
-            {statsLoading ? (
-              <div className="space-y-4">
-                {Array(5).fill(0).map((_, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-5 w-16" />
-                  </div>
-                ))}
-              </div>
-            ) : statsError ? (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Erro ao carregar status do servidor
-                </AlertDescription>
-              </Alert>
-            ) : dashboardStats ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">vsftpd Status</span>
-                  <Badge className={dashboardStats.server_status === "online" ? "bg-accent" : "bg-destructive"}>
-                    {dashboardStats.server_status === "online" ? "Running" : "Stopped"}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Porta</span>
-                  <span className="text-sm font-mono">21</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">SSL/TLS</span>
-                  <Badge variant="secondary">Habilitado</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Conexões Ativas</span>
-                  <span className="text-sm font-mono">{dashboardStats.active_users}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Uptime</span>
-                  <span className="text-sm">{dashboardStats.uptime}</span>
-                </div>
-              </div>
-            ) : null}
-            <div className="mt-4 pt-4 border-t">
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/settings">
-                  Configurações
-                </Link>
-              </Button>
-            </div>
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-green-500" />
+                <span>Servidor vsftpd</span>
+                <CheckCircle className="w-4 h-4 text-green-500 ml-auto" />
+              </li>
+              <li className="flex items-center gap-2">
+                <HardDrive className="w-4 h-4 text-blue-500" />
+                <span>Porta FTP</span>
+                <span className="ml-auto">{stats?.ftp_port ?? 21}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-purple-500" />
+                <span>SSL/TLS</span>
+                <span className="ml-auto">{stats?.ssl_enabled ? "Habilitado" : "Desabilitado"}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-orange-500" />
+                <span>Conexões Ativas</span>
+                <span className="ml-auto">{stats?.active_connections ?? "-"}</span>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Ações Rápidas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Ações Rápidas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="flex items-center gap-2">
+              <RefreshCw className="w-4 h-4" /> Reiniciar vsftpd
+            </Button>
           </CardContent>
         </Card>
       </div>
