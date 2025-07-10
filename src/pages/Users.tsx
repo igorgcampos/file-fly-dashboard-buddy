@@ -160,33 +160,24 @@ export default function Users() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Usuário</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Permissões</TableHead>
-                  <TableHead>Último Login</TableHead>
-                  <TableHead>Quota</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead className="w-40">Usuário</TableHead>
+                  <TableHead className="w-24 text-center">Status</TableHead>
+                  <TableHead className="w-32 text-center">Permissões</TableHead>
+                  <TableHead className="w-40 text-center">Último Login</TableHead>
+                  <TableHead className="w-24 text-center">Quota</TableHead>
+                  <TableHead className="w-40 text-center">Criado</TableHead>
+                  <TableHead className="w-16 text-center">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.map((user) => (
                   <TableRow key={user.username}>
-                    <TableCell>
-                      <p className="font-medium">{user.username}</p>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-muted-foreground">-</span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-muted-foreground">-</span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-muted-foreground">-</span>
-                    </TableCell>
-                    <TableCell>
-                      {user.quota_mb ? `${user.quota_mb} MB` : "-"}
-                    </TableCell>
-                    <TableCell>
+                    <TableCell className="w-40">{user.username}</TableCell>
+                    <TableCell className="w-24 text-center">-</TableCell>
+                    <TableCell className="w-32 text-center">-</TableCell>
+                    <TableCell className="w-40 text-center">-</TableCell>
+                    <TableCell className="w-24 text-center">{user.quota_mb ? `${user.quota_mb} MB` : "-"}</TableCell>
+                    <TableCell className="w-40 text-center">
                       {user.created_at
                         ? new Date(user.created_at).toLocaleString("pt-BR", {
                             day: "2-digit",
@@ -197,7 +188,7 @@ export default function Users() {
                           })
                         : "-"}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="w-16 text-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
