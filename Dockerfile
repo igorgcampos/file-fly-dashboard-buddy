@@ -8,6 +8,9 @@ RUN apk add --no-cache python3 make g++
 
 # Copy package files
 COPY package*.json ./
+
+# Gera ou atualiza o lockfile antes do ci
+RUN npm install
 RUN npm ci --include=dev
 
 # Copy source code
