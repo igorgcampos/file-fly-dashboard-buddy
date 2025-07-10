@@ -30,10 +30,8 @@ export function Layout({ children }: LayoutProps) {
 
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <main className="flex-1 overflow-auto flex justify-center">
-          <div className="w-full max-w-7xl mx-auto p-6">
-            {children}
-          </div>
+        <main className="flex-1 overflow-auto bg-muted/50 p-8">
+          {children}
         </main>
       </div>
     </SidebarProvider>
