@@ -170,29 +170,23 @@ export default function Users() {
               </TableHeader>
               <TableBody>
                 {filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user.username}>
                     <TableCell>
-                      <div>
-                        <p className="font-medium">{user.username}</p>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
-                      </div>
+                      <p className="font-medium">{user.username}</p>
                     </TableCell>
                     <TableCell>
-                      {getStatusBadge(user.status)}
+                      <span className="text-muted-foreground">-</span>
                     </TableCell>
                     <TableCell>
-                      {getPermissionBadge(user.permissions)}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {user.lastLogin}
+                      <span className="text-muted-foreground">-</span>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        <p>{user.quotaUsed}</p>
-                        <p className="text-muted-foreground">de {user.quotaLimit}</p>
-                      </div>
+                      <span className="text-muted-foreground">-</span>
                     </TableCell>
-                    <TableCell className="py-2 text-center w-32 min-w-[100px] text-xs text-muted-foreground">
+                    <TableCell>
+                      {user.quota_mb ? `${user.quota_mb} MB` : "-"}
+                    </TableCell>
+                    <TableCell>
                       {user.created_at
                         ? new Date(user.created_at).toLocaleString("pt-BR", {
                             day: "2-digit",
