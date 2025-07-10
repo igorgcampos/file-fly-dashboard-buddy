@@ -15,12 +15,31 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import logging
 import shutil
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="FTP Manager API", version="1.0.0")
+
+# Middleware para log detalhado de requisições
+@app.middleware("http")
+async def log_requests(request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = (time.time() - start_time) * 1000
+    logger.info(f"{request.method} {request.url.path} {response.status_code} {process_time:.2f}ms")
+    return response
+
+# Documentação automática FastAPI
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html():
+    return get_swagger_ui_html(openapi_url=app.openapi_url, title="FTP Dashboard API Docs")
+
+@app.get("/redoc", include_in_schema=False)
+async def redoc_html():
+    return get_redoc_html(openapi_url=app.openapi_url, title="FTP Dashboard API ReDoc")
 
 # CORS configuration
 app.add_middleware(
