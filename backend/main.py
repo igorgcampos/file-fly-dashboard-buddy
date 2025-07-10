@@ -429,7 +429,7 @@ async def get_recent_users():
                 parts = line.strip().split()
                 if len(parts) < 15:
                     continue
-                username = parts[-3]
+                username = parts[-4]
                 if username not in seen:
                     users.append({
                         "username": username,
