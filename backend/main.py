@@ -385,32 +385,38 @@ async def delete_user(username: str):
         logger.error(f"Error deleting user: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/dashboard/stats", response_model=DashboardStats)
+@app.get("/api/dashboard/stats")
 async def get_dashboard_stats():
     """Get dashboard statistics"""
     try:
         # Get server status
         server_info = get_vsftpd_status()
-        
         # Get active connections
         active_users = get_active_connections()
-        
         # Get transfer statistics
         log_data = parse_vsftpd_logs(24)
-        
         # Get disk usage
         disk_info = get_disk_usage()
-        
-        return DashboardStats(
-            active_users=active_users,
-            server_status=server_info["status"],
-            server_version=server_info["version"],
-            uptime=server_info["uptime"],
-            transfers_24h=log_data["transfers"],
-            disk_used_gb=disk_info["used_gb"],
-            disk_total_gb=disk_info["total_gb"],
-            disk_usage_percent=disk_info["usage_percent"]
-        )
+        # Contar total de usuários lendo o arquivo de usuários virtuais
+        total_users = 0
+        if os.path.exists(VIRTUAL_USERS_FILE):
+            with open(VIRTUAL_USERS_FILE, 'r') as f:
+                lines = f.readlines()
+                total_users = len(lines) // 2  # Cada usuário ocupa 2 linhas
+        return {
+            "active_users": active_users,
+            "server_status": server_info["status"],
+            "server_version": server_info["version"],
+            "uptime": server_info["uptime"],
+            "transfers_24h": log_data["transfers"],
+            "disk_used_gb": disk_info["used_gb"],
+            "disk_total_gb": disk_info["total_gb"],
+            "disk_usage_percent": disk_info["usage_percent"],
+            "active_connections": active_users,
+            "ftp_port": 21,
+            "ssl_enabled": True,
+            "total_users": total_users
+        }
     except Exception as e:
         logger.error(f"Error getting dashboard stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -429,7 +435,7 @@ async def get_recent_users():
                 parts = line.strip().split()
                 if len(parts) < 15:
                     continue
-                username = parts[-4]
+                username = parts[-5]  # Corrigido para pegar a coluna correta
                 if username not in seen:
                     users.append({
                         "username": username,
