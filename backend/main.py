@@ -415,12 +415,36 @@ async def get_dashboard_stats():
         logger.error(f"Error getting dashboard stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/dashboard/recent-users", response_model=List[RecentUser])
+@app.get("/api/dashboard/recent-users")
 async def get_recent_users():
-    """Get recent user activity"""
+    """Get recent user activity from vsftpd log (xferlog format)"""
     try:
-        log_data = parse_vsftpd_logs(24)
-        return [RecentUser(**user) for user in log_data["recent_users"]]
+        log_path = VSFTPD_LOG
+        if not os.path.exists(log_path):
+            return []
+        users = []
+        seen = set()
+        with open(log_path, 'r') as f:
+            for line in reversed(f.readlines()):
+                parts = line.strip().split()
+                if len(parts) < 15:
+                    continue
+                username = parts[-3]
+                if username not in seen:
+                    users.append({
+                        "username": username,
+                        "last_transfer": " ".join(parts[:4]),
+                        "file": parts[8],
+                        "status": "Ativo",
+                        "home_dir": f"/home/ftpusers/{username}",
+                        "quota_mb": 0,
+                        "permissions": "Completo",
+                        "created_at": "-"
+                    })
+                    seen.add(username)
+                if len(users) >= 5:
+                    break
+        return users
     except Exception as e:
         logger.error(f"Error getting recent users: {e}")
         raise HTTPException(status_code=500, detail=str(e))
