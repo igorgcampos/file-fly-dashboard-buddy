@@ -110,30 +110,30 @@ export default function Dashboard() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-muted-foreground">
-                      <th className="text-left">Usuário</th>
-                      <th className="text-left">Diretório</th>
-                      <th>Permissões</th>
-                      <th>Quota</th>
-                      <th>Status</th>
-                      <th>Criado</th>
+                      <th className="text-left w-40 min-w-[120px]">Usuário</th>
+                      <th className="text-left w-64 min-w-[180px]">Diretório</th>
+                      <th className="text-center w-32 min-w-[100px]">Permissões</th>
+                      <th className="text-center w-24 min-w-[80px]">Quota</th>
+                      <th className="text-center w-24 min-w-[80px]">Status</th>
+                      <th className="text-center w-24 min-w-[80px]">Criado</th>
                     </tr>
                   </thead>
                   <tbody>
                     {recentUsers.map((user, i) => (
                       <tr key={i} className="border-b last:border-0">
-                        <td className="py-2 font-medium flex items-center gap-2">
+                        <td className="py-2 font-medium flex items-center gap-2 w-40 min-w-[120px]">
                           <UserAvatar name={user.username} size={28} />
                           {user.username}
                         </td>
-                        <td className="py-2">{user.home_dir}</td>
-                        <td className="py-2">
+                        <td className="py-2 w-64 min-w-[180px]">{user.home_dir}</td>
+                        <td className="py-2 text-center w-32 min-w-[100px]">
                           <PermissionBadge permission={user.permissions || "Completo"} />
                         </td>
-                        <td className="py-2">{user.quota_mb} MB</td>
-                        <td className="py-2">
+                        <td className="py-2 text-center w-24 min-w-[80px]">{user.quota_mb} MB</td>
+                        <td className="py-2 text-center w-24 min-w-[80px]">
                           <span className={user.status === "Ativo" ? "bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs" : "bg-muted px-2 py-1 rounded-full text-xs"}>{user.status}</span>
                         </td>
-                        <td className="py-2 text-xs text-muted-foreground">{user.created_at ? user.created_at.slice(5, 10) : "-"}</td>
+                        <td className="py-2 text-center w-24 min-w-[80px] text-xs text-muted-foreground">{user.created_at ? user.created_at.slice(5, 10) : "-"}</td>
                       </tr>
                     ))}
                   </tbody>
