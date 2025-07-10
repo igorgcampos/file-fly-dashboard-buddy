@@ -37,8 +37,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/50">
-      <div className="w-full max-w-6xl mx-auto p-8 space-y-10">
+    <div className="w-full max-w-7xl mx-auto p-8 space-y-10">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -173,7 +172,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-      </div>
     </div>
   );
 }
