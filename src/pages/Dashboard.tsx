@@ -9,11 +9,13 @@ import { User } from "@/services/api";
 import { RefreshCw, User as UserIcon, HardDrive, Activity, Shield, Server } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const [stats, setStats] = useState<any>(null);
   const [recentUsers, setRecentUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     setLoading(true);
@@ -48,7 +50,10 @@ export default function Dashboard() {
             <h1 className="text-4xl font-bold text-slate-900 mb-2">Dashboard FTP</h1>
             <p className="text-slate-600 text-lg">Gerencie usuários e monitore o servidor vsftpd</p>
           </div>
-          <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105">
+          <Button
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105"
+            onClick={() => navigate("/users/new")}
+          >
             <RefreshCw className="w-5 h-5 mr-2" />
             Novo Usuário
           </Button>
@@ -163,7 +168,7 @@ export default function Dashboard() {
               <Button variant="outline" className="w-full flex items-center gap-2 py-4 text-base font-semibold">
                 <RefreshCw className="w-5 h-5 mr-2" /> Reiniciar vsftpd
               </Button>
-              <Button variant="outline" className="w-full flex items-center gap-2 py-4 text-base font-semibold">
+              <Button variant="outline" className="w-full flex items-center gap-2 py-4 text-base font-semibold" onClick={() => navigate("/logs") }>
                 <Shield className="w-5 h-5 mr-2" /> Ver Logs
               </Button>
               <Button variant="outline" className="w-full flex items-center gap-2 py-4 text-base font-semibold">
