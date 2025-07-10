@@ -37,8 +37,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-6 md:p-8 space-y-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen flex items-center justify-center bg-muted/50">
+      <div className="w-full max-w-4xl mx-auto p-6 space-y-8">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
