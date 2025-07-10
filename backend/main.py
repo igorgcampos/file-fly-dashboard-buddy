@@ -14,6 +14,7 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 import logging
+import shutil
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -64,16 +65,19 @@ VIRTUAL_USERS_FILE = "/etc/vsftpd/virtual_users.txt"
 VIRTUAL_USERS_DB = "/etc/vsftpd/virtual_users.db"
 VSFTPD_LOG = "/var/log/vsftpd.log"
 FTP_HOME_BASE = "/home/ftpusers"
+CONFIG_FILE = "config.json"
 
 # Utility functions
 def hash_password(password: str) -> str:
     """Hash password using SHA-256"""
     return hashlib.sha256(password.encode()).hexdigest()
 
-def run_command(command: str) -> tuple[bool, str]:
+def run_command(command: str, check: bool = True) -> tuple[bool, str]:
     """Execute system command and return success status and output"""
     try:
         result = subprocess.run(command.split(), capture_output=True, text=True, timeout=30)
+        if check and result.returncode != 0:
+            return False, result.stderr.strip()
         return result.returncode == 0, result.stdout.strip()
     except subprocess.TimeoutExpired:
         return False, "Command timeout"
@@ -216,6 +220,51 @@ def get_disk_usage() -> Dict[str, float]:
     except Exception as e:
         logger.error(f"Error getting disk usage: {e}")
         return {"total_gb": 100.0, "used_gb": 0.0, "usage_percent": 0.0}
+
+def apply_vsftpd_config(config):
+    """Atualiza o arquivo /etc/vsftpd.conf com as configurações fornecidas"""
+    conf_path = "/etc/vsftpd.conf"
+    # Carregar config existente (ou criar novo)
+    lines = []
+    if os.path.exists(conf_path):
+        with open(conf_path, "r") as f:
+            lines = f.readlines()
+    # Dicionário para atualizar
+    conf_map = {
+        "listen_port": str(config.get("ftp_port", 21)),
+        "pasv_min_port": config.get("passive_ports", "40000-40100").split("-")[0],
+        "pasv_max_port": config.get("passive_ports", "40000-40100").split("-")[-1],
+        "max_clients": str(config.get("max_clients", 50)),
+        "max_per_ip": str(config.get("max_per_ip", 10)),
+        "ssl_enable": "YES" if config.get("ssl_enabled", True) else "NO",
+        "rsa_cert_file": config.get("ssl_cert_file", "/etc/ssl/cert.pem"),
+        "rsa_private_key_file": config.get("ssl_key_file", "/etc/ssl/key.pem"),
+        # Adicione mais conforme necessário
+    }
+    # Atualizar linhas existentes ou adicionar
+    new_lines = []
+    keys_set = set()
+    for line in lines:
+        updated = False
+        for key, value in conf_map.items():
+            if line.strip().startswith(f"{key}="):
+                new_lines.append(f"{key}={value}\n")
+                keys_set.add(key)
+                updated = True
+                break
+        if not updated:
+            new_lines.append(line)
+    # Adicionar chaves que não existiam
+    for key, value in conf_map.items():
+        if key not in keys_set:
+            new_lines.append(f"{key}={value}\n")
+    # Backup antes de sobrescrever
+    shutil.copy2(conf_path, conf_path+".bak") if os.path.exists(conf_path) else None
+    with open(conf_path, "w") as f:
+        f.writelines(new_lines)
+    # Reiniciar vsftpd
+    run_command("pkill vsftpd", check=False)
+    run_command("vsftpd &", check=False)
 
 # API Routes
 
@@ -387,6 +436,39 @@ async def get_vsftpd_log():
     except Exception as e:
         logger.error(f"Erro ao ler o log do vsftpd: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/config")
+async def get_config():
+    """Retorna configurações gerais do sistema (persistente em config.json)"""
+    default_config = {
+        "ftp_port": 21,
+        "passive_ports": "40000-40100",
+        "max_clients": 50,
+        "max_per_ip": 10,
+        "log_level": "detalhado",
+        "ssl_enabled": True,
+        "ssl_cert_file": "/etc/ssl/cert.pem",
+        "ssl_key_file": "/etc/ssl/key.pem",
+        "default_quota_mb": 100,
+        "dashboard_theme": "auto",
+        "language": "pt-BR"
+    }
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            return json.load(f)
+    except Exception:
+        return default_config
+
+@app.post("/api/config")
+async def update_config(config: dict):
+    """Atualiza configurações gerais do sistema (persistente em config.json) e aplica no vsftpd.conf"""
+    try:
+        with open(CONFIG_FILE, "w") as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        apply_vsftpd_config(config)
+        return {"message": "Configurações atualizadas e aplicadas com sucesso!", "config": config}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao salvar/aplicar configurações: {e}")
 
 if __name__ == "__main__":
     import uvicorn
