@@ -62,21 +62,21 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              {/* Link externo para documentação da API */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <a
+                    href="http://localhost:8000/docs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={getNavClasses("")}
+                  >
+                    <FileText className="h-4 w-4 shrink-0" />
+                    {!collapsed && <span className="ml-2">API Docs</span>}
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
-            {/* Link externo para documentação da API */}
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a
-                  href="http://localhost:8000/docs"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={getNavClasses("")}
-                >
-                  <FileText className="h-4 w-4 shrink-0" />
-                  {!collapsed && <span className="ml-2">API Docs</span>}
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
           </SidebarGroupContent>
         </SidebarGroup>
 
