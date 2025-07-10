@@ -19,9 +19,8 @@ services:
       - "21:21"
       - "40000-40100:40000-40100"
     volumes:
-      - ./backend:/app
-      - ftp_data:/home/ftpusers
       - vsftpd_config:/etc/vsftpd
+      - ftp_data:/home/ftpusers
     environment:
       - PYTHONPATH=/app
     networks:
