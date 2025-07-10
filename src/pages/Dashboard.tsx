@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { MetricCard } from "@/components/MetricCard";
+import { UserAvatar } from "@/components/UserAvatar";
+import { PermissionBadge } from "@/components/PermissionBadge";
+import { StatusItem } from "@/components/StatusItem";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { apiService } from "@/services/api";
 import { User } from "@/services/api";
-import { RefreshCw, CheckCircle, AlertTriangle, User as UserIcon, HardDrive, Activity, Shield } from "lucide-react";
+import { RefreshCw, User as UserIcon, HardDrive, Activity, Shield, Server, CheckCircle, AlertTriangle } from "lucide-react";
 
 export default function Dashboard() {
   const [stats, setStats] = useState<any>(null);
@@ -27,42 +30,18 @@ export default function Dashboard() {
     <div className="p-6 space-y-6">
       {/* Cards de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-blue-50">
-          <CardContent className="p-4 flex flex-col items-center">
-            <UserIcon className="w-6 h-6 text-blue-500 mb-2" />
-            <div className="text-2xl font-bold">{stats?.total_users ?? "-"}</div>
-            <div className="text-xs text-muted-foreground">Total de Usuários</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-green-50">
-          <CardContent className="p-4 flex flex-col items-center">
-            <UserIcon className="w-6 h-6 text-green-500 mb-2" />
-            <div className="text-2xl font-bold">{stats?.active_users ?? "-"}</div>
-            <div className="text-xs text-muted-foreground">Usuários Ativos</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-purple-50">
-          <CardContent className="p-4 flex flex-col items-center">
-            <HardDrive className="w-6 h-6 text-purple-500 mb-2" />
-            <div className="text-2xl font-bold">{stats ? `${stats.disk_used_gb} GB` : "-"}</div>
-            <div className="text-xs text-muted-foreground">Quota Total</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-orange-50">
-          <CardContent className="p-4 flex flex-col items-center">
-            <Activity className="w-6 h-6 text-orange-500 mb-2" />
-            <div className="text-2xl font-bold">{stats?.active_connections ?? "-"}</div>
-            <div className="text-xs text-muted-foreground">Conexões Ativas</div>
-          </CardContent>
-        </Card>
+        <MetricCard icon={<UserIcon className="w-7 h-7" />} value={stats?.total_users ?? "-"} label="Total de Usuários" color="blue" />
+        <MetricCard icon={<UserIcon className="w-7 h-7" />} value={stats?.active_users ?? "-"} label="Usuários Ativos" color="green" />
+        <MetricCard icon={<HardDrive className="w-7 h-7" />} value={stats ? `${stats.disk_used_gb} GB` : "-"} label="Quota Total" color="purple" />
+        <MetricCard icon={<Activity className="w-7 h-7" />} value={stats?.active_connections ?? "-"} label="Conexões Ativas" color="orange" />
       </div>
 
       {/* Usuários Recentes */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Usuários Recentes</CardTitle>
-            <Button size="sm" variant="outline" className="absolute right-6 top-6 flex items-center gap-2">
+            <Button size="sm" variant="outline" className="flex items-center gap-2">
               <RefreshCw className="w-4 h-4" /> Atualizar
             </Button>
           </CardHeader>
@@ -81,18 +60,16 @@ export default function Dashboard() {
                 {recentUsers.map((user, i) => (
                   <tr key={i} className="border-b last:border-0">
                     <td className="py-2 font-medium flex items-center gap-2">
-                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-muted text-primary font-bold">
-                        {user.username[0]?.toUpperCase()}
-                      </span>
+                      <UserAvatar name={user.username} size={28} />
                       {user.username}
                     </td>
                     <td className="py-2">{user.home_dir}</td>
                     <td className="py-2">
-                      <Badge variant="outline">Completo</Badge>
+                      <PermissionBadge permission={user.permissions || "Completo"} />
                     </td>
                     <td className="py-2">{user.quota_mb} MB</td>
                     <td className="py-2">
-                      <Badge className={user.status === "Ativo" ? "bg-green-100 text-green-700" : "bg-muted"}>{user.status}</Badge>
+                      <span className={user.status === "Ativo" ? "bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs" : "bg-muted px-2 py-1 rounded-full text-xs"}>{user.status}</span>
                     </td>
                   </tr>
                 ))}
@@ -107,28 +84,10 @@ export default function Dashboard() {
             <CardTitle>Status do Sistema</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-green-500" />
-                <span>Servidor vsftpd</span>
-                <CheckCircle className="w-4 h-4 text-green-500 ml-auto" />
-              </li>
-              <li className="flex items-center gap-2">
-                <HardDrive className="w-4 h-4 text-blue-500" />
-                <span>Porta FTP</span>
-                <span className="ml-auto">{stats?.ftp_port ?? 21}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-purple-500" />
-                <span>SSL/TLS</span>
-                <span className="ml-auto">{stats?.ssl_enabled ? "Habilitado" : "Desabilitado"}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-orange-500" />
-                <span>Conexões Ativas</span>
-                <span className="ml-auto">{stats?.active_connections ?? "-"}</span>
-              </li>
-            </ul>
+            <StatusItem icon={<Server className="w-4 h-4" />} label="Servidor vsftpd" value={<span className="text-green-600">Operacional</span>} color="green" />
+            <StatusItem icon={<HardDrive className="w-4 h-4" />} label="Porta FTP" value={stats?.ftp_port ?? 21} color="blue" />
+            <StatusItem icon={<Shield className="w-4 h-4" />} label="SSL/TLS" value={stats?.ssl_enabled ? "Habilitado" : "Desabilitado"} color={stats?.ssl_enabled ? "green" : "gray"} />
+            <StatusItem icon={<Activity className="w-4 h-4" />} label="Conexões Ativas" value={stats?.active_connections ?? "-"} color="orange" />
           </CardContent>
         </Card>
       </div>
