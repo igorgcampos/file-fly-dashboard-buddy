@@ -6,11 +6,10 @@ WORKDIR /app
 # Instala python3 e ferramentas de compilação necessárias para o node-gyp
 RUN apk add --no-cache python3 make g++
 
-# Copy package files
-COPY package*.json ./
+# Copy only package.json
+COPY package.json ./
 
-# Remove lockfile antigo e instala dependências
-RUN rm -f package-lock.json
+# Instala dependências e gera novo lockfile
 RUN npm install --include=dev
 
 # Copy source code
