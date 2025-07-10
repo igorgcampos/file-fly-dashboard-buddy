@@ -9,7 +9,8 @@ RUN apk add --no-cache python3 make g++
 # Copy package files
 COPY package*.json ./
 
-# Instala dependências e atualiza lockfile em uma etapa
+# Remove lockfile antigo e instala dependências
+RUN rm -f package-lock.json
 RUN npm install --include=dev
 
 # Copy source code
